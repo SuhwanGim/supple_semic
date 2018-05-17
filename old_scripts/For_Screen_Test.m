@@ -5,7 +5,7 @@ global window_rect prompt_ex lb rb tb bb scale_H promptW promptH; % rating scale
 global lb1 rb1 lb2 rb2;
 global fontsize anchor_y anchor_y2 anchor anchor_xl anchor_xr anchor_yu anchor_yd; % anchors
 
-sss
+
 %%
 
 Screen('Clear');
@@ -76,7 +76,10 @@ radius = (rb2-lb2)/2;
 
 %% EXPERIEMENT START
 rating_type = 'semicircular';
-joystick = true;
+joystick = false;
+rn = randperm(1000,1);
+max_rn = false;
+min_rn = true;
 %% Explain
 % exp_scale('predict',joystick)
 
@@ -97,7 +100,7 @@ joystick = true;
 %     end
 % end
 %
-% msg = 'ÀÌ¹ø ÀÚ±ØÀÌ ÃÖ´ë ¾ó¸¶³ª ¾ÆÇÃ±î¿ä?';
+% msg = 'ï¿½Ì¹ï¿½ ï¿½Ú±ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ó¸¶³ï¿½ ï¿½ï¿½ï¿½Ã±ï¿½ï¿??';
 % msg = double(msg);
 % DrawFormattedText(theWindow, msg, 'center', 150, orange, [], [], [], 2);
 % Screen('Flip', theWindow);
@@ -108,71 +111,86 @@ sTime=GetSecs;
 x= cir_center(1);
 y= cir_center(2);
 SetMouse(cir_center(1), cir_center(2));
+
+radius = (rb2-lb2)/2; % radius
+x_temp = reshape(repmat(linspace(lb2, rb2,500),2,1),1,1000); x_temp([1 1000]) = [];
+y_temp = ycenter - sqrt(radius.^2 - (x_temp-xcenter).^2);
+x(:,1*998-997:1*998) = x_temp;
+y(:,1*998-997:1*998) = y_temp;
+theta = atan2(cir_center(2)-y,x-cir_center(1));
+
 while true
-    if joystick
-        [pos, button] = mat_joy(0);
-        xAlpha=pos(1);
-        x=x+xAlpha*10;
-        yAlpha=pos(2);
-        y=y+yAlpha*10;
-    else
-        [x,y,button]=GetMouse(theWindow);
-    end
-    % if the point goes further than the semi-circle, move the point to
-    % the closest point
-    radius = (rb2-lb2)/2; %radius = (rb1-lb1)/2; % radius;
-    theta = atan2(cir_center(2)-y,x-cir_center(1));
-    % current euclidean distance
-    curr_r = sqrt((x-cir_center(1))^2+ (y-cir_center(2))^2);
-    % current angle (0 - 180 deg)
-    curr_theta = rad2deg(-theta+pi);
+    %     if joystick
+    %         [pos, button] = mat_joy(0);
+    %         xAlpha=pos(1);
+    %         x=x+xAlpha*10;
+    %         yAlpha=pos(2);
+    %         y=y+yAlpha*10;
+    %     else
+    %         [x,y,button]=GetMouse(theWindow);
+    %     end
+    %     % if the point goes further than the semi-circle, move the point to
+    %     % the closest point
+    %     radius = (rb2-lb2)/2; %radius = (rb1-lb1)/2; % radius;
+    %     theta = atan2(cir_center(2)-y,x-cir_center(1));
+    %     % current euclidean distance
+    %     curr_r = sqrt((x-cir_center(1))^2+ (y-cir_center(2))^2);
+    %     % current angle (0 - 180 deg)
+    %     curr_theta = rad2deg(-theta+pi);
+    %     % send to arc of semi-circle
+    %     if sqrt((x-cir_center(1))^2+ (y-cir_center(2))^2) > radius
+    %         x = radius*cos(theta)+cir_center(1);
+    %         y = cir_center(2)-radius*sin(theta);
+    %         %SetMouse(x,y);
+    %     end
+    %
+    %msg1 = GetSecs-sTime;
+    %msg2 = 'ï¿½ï¿½ï¿½Ì½ï¿½Æ½_ï¿½×½ï¿½Æ®_30ï¿½Êµï¿½ï¿½ï¿½: ';
+    %msg_sum = [msg2 ' ' num2str(msg1)];
+    %msg = double(msg_sum);
+    %DrawFormattedText(theWindow, msg, 'center', 150, white, [], [], [], 1.5);
+    
+    [x,y,button]=GetMouse(theWindow);
+    Screen(theWindow,'FillRect',bgcolor, window_rect);
+    
     if y > cir_center(2)
         y = cir_center(2);
         %SetMouse(x,y);
     end
-    % send to arc of semi-circle
-    if sqrt((x-cir_center(1))^2+ (y-cir_center(2))^2) > radius
-        x = radius*cos(theta)+cir_center(1);
-        y = cir_center(2)-radius*sin(theta);
-        %SetMouse(x,y);
-    end
     
     
+    theta = atan2(cir_center(2)-y,x-cir_center(1));
+    x_arrow = radius*cos(theta)+cir_center(1);
+    y_arrow = cir_center(2)-radius*sin(theta);
     
-    Screen(theWindow,'FillRect',bgcolor, window_rect);
-    msg1 = GetSecs-sTime;
-    msg2 = 'Á¶ÀÌ½ºÆ½_Å×½ºÆ®_30ÃÊµ¿¾È: ';
-    msg_sum = [msg2 ' ' num2str(msg1)];
-    msg = double(msg_sum);
-    DrawFormattedText(theWindow, msg, 'center', 150, white, [], [], [], 1.5);
+    xy = [cir_center(1) x_arrow; ...
+        cir_center(2) y_arrow];
+
     
-    
-    %draw_scale('cont_predict_semicircular');
     
     draw_scale('overall_predict_semicircular');
-    
-    
-    Screen('DrawDots', theWindow, [x y], 15, orange, [0 0], 1);
+    Screen(theWindow,'DrawLines', xy, 5, orange);
     Screen('Flip', theWindow);
+    
+    curr_r = sqrt((x-cir_center(1))^2+ (y-cir_center(2))^2);
+    % current angle (0 - 180 deg)
+    curr_theta = rad2deg(-theta+pi);
+    
     
     if button(1)
         draw_scale('overall_predict_semicircular');
-        Screen('DrawDots', theWindow, [x y]', 18, red, [0 0], 1);  % Feedback
-        Screen('Flip',theWindow);
+        Screen(theWindow,'DrawLines', xy, 5, orange);
+        Screen('Flip', theWindow);
         WaitSecs(min(0.5, 5-(GetSecs-sTime)));
         ready3=0;
         while ~ready3 %GetSecs - sTime> 5
-            msg = double(' ');
-            DrawFormattedText(theWindow, msg, 'center', 150, white, [], [], [], 1.2);
-            Screen('Flip',theWindow);
-            if  GetSecs - sTime > 5
+            
                 break
-            end
         end
-        break;
-    else
-        %do nothing
     end
+end
+
+for i=1:10
     
     if GetSecs - sTime >30
         pause(1);
