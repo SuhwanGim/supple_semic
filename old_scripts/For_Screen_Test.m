@@ -25,6 +25,7 @@ white = 255;
 red = [255 0 0];
 red_Alpha = [255  164 0 130]; % RGB + A(Level of tranceprency: for social Cue)
 orange = [255 164 0];
+orange_Alpha = [255 164 0 130];
 yellow = [255 220 0];
 
 % rating scale left and right bounds 1/5 and 4/5
@@ -178,17 +179,31 @@ while true
     
     
     if button(1)
-        draw_scale('overall_predict_semicircular');
-        Screen(theWindow,'DrawLines', xy, 5, orange);
-        Screen('Flip', theWindow);
-        WaitSecs(min(0.5, 5-(GetSecs-sTime)));
-        ready3=0;
-        while ~ready3 %GetSecs - sTime> 5
-            
-                break
-        end
+        WaitSecs(0.5);
+        break;
+        
     end
 end
+sTime = GetSecs;
+col = orange_Alpha;
+msg = 'Debug mode: 1St click';
+
+while GetSecs - sTime < 15
+    [~,~,button1]=GetMouse(theWindow);
+    
+    DrawFormattedText(theWindow, double(msg), 'center', 150, white, [], [], [], 1.5);
+    draw_scale('overall_predict_semicircular');
+    Screen(theWindow,'DrawLines', xy, 5, col);
+    
+    Screen('Flip', theWindow);
+    %WaitSecs(min(0.5, 5-(GetSecs-sTime)));
+    
+    if button1(1)
+        msg = 'Debug mode: 2nd click';
+        col = red;
+    end
+end
+
 
 for i=1:10
     
