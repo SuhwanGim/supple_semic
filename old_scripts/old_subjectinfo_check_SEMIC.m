@@ -57,10 +57,10 @@ for i = 1:length(varargin)
                 learn = true;
             case {'Rest'}
                 rest = true;
-            case {'sp_Cali'}
-                cali_sup = true;
+            case {'Cali_sup'}
+                cali_sup = ture;
             case {'Main_sup'}
-                main_sup = true;
+                main_supp = true;
         end
     end
 end
@@ -83,8 +83,6 @@ elseif rest
     fname = fullfile(savedir, ['Rest_' SID '.mat']);
 elseif cali_sup
     fname = fullfile(savedir, ['sp_Calib_' SID '.mat']);
-elseif main_sup
-    fname = fullfile(savedir, ['sp_Main_' SID '.mat']);
 else
     error('Unknown input');
 end

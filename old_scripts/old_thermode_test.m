@@ -37,7 +37,6 @@ testmode = false;
 USE_BIOPAC = false;
 joystick= false;
 dofmri=false;
-USE_EYELINK = false;
 % need to be specified differently for different computers
 % psytool = 'C:\toolbox\Psychtoolbox';
 for i = 1:length(varargin)
@@ -142,19 +141,19 @@ if start_trial==1
     ITI_Delay = ITI_Delay(rn,:);
     ITI_Delay = ITI_Delay(1:length(trial_Number),:);
     
-    %no_iti = repmat([5;7], 3, 1);
-    %idx = randperm(6);
-    %ITI_Delay(contains(cue_settings, 'NO'),:) = [no_iti(idx) NaN(6,1) 12-no_iti(idx)];
+    no_iti = repmat([5;7], 3, 1);
+    idx = randperm(6);
+    ITI_Delay(contains(cue_settings, 'NO'),:) = [no_iti(idx) NaN(6,1) 12-no_iti(idx)];
     
     ITI = ITI_Delay(:,1);
     Delay = ITI_Delay(:,2);
     Delay2 = ITI_Delay(:,3);
     % trial sequences
-    ts{runNbr} = [run_Number, trial_Number ,ITI, Delay, Delay2, cue_settings, cue_mean, cue_var, stim_level, program, overall_unpl_Q_cond, overall_unpl_Q_txt];
+    ts{runNbr} = [run_Number, trial_Number, type ,ITI, Delay, Delay2, cue_settings, cue_mean, cue_var, stim_level, program, overall_unpl_Q_cond, overall_unpl_Q_txt];
     % save the trial_sequences
     save(data.datafile, 'ts', 'data');
 else
-    [run_Number, trial_Number, ITI, Delay, Delay2, cue_settings, cue_mean, cue_var, stim_level, program, overall_unpl_Q_cond, overall_unpl_Q_txt] = ts{runNbr};
+    [run_Number, trial_Number, type, ITI, Delay, Delay2, cue_settings, cue_mean, cue_var, stim_level, program, overall_unpl_Q_cond, overall_unpl_Q_txt] = ts{runNbr};
 end
 %% SETUP: Screen
 Screen('Clear');
@@ -240,7 +239,6 @@ try
     
     % START: RUN
     data.run_start_timestamp{runNbr}=GetSecs;
-    data.run_type = type;
     % DISPLAY EXPERIMENT MESSAGE:
     if trial_Number(k) == 1 && run_Number(k) == 1
         while (1)
@@ -340,26 +338,18 @@ try
                 start_while=GetSecs;
                 data.dat{runNbr}{trial_Number(j)}.contRating_start_timestamp = start_while;
                 SetMouse(x,y);
-                while GetSecs - start_while < 10
+                while GetSecs - TrSt_t < 14.5 + ITI(j) + 2 + Delay(j)
                     rec_i = rec_i+1;
                     
-                    if joystick
-                        [pos, button] = mat_joy(0);
-                        xAlpha=pos(1);
-                        x=x+xAlpha*velocity_ovr;
-                        yAlpha=pos(2);
-                        y=y+yAlpha*velocity_ovr;
-                    else
-                        [x,y,button]=GetMouse(theWindow);
-                    end
+                    [x,y,button]=GetMouse(theWindow);
                     Screen(theWindow,'FillRect',bgcolor, window_rect);
                     
                     if y > cir_center(2)
                         y = cir_center(2);
                         %SetMouse(x,y);
                     end
-                    %
-                    radius = (rb2-lb2)/2;
+                    
+                    
                     % Line
                     theta = atan2(cir_center(2)-y,x-cir_center(1));
                     x_arrow = radius*cos(theta)+cir_center(1);
@@ -400,21 +390,12 @@ try
                 data.dat{runNbr}{trial_Number(j)}.bar_heat_start_txt = main(ip,port,2); % start heat signal
                 data.dat{runNbr}{trial_Number(j)}.bar_duration_heat_trigger = toc;
                 data.dat{runNbr}{trial_Number(j)}.bar_heat_start_timestamp = GetSecs;
-                save_xy = xy;
+                
                 % trigger 
-                WaitSecs(0.5);
-                while GetSecs - sTime < 12.5
+                while GetSecs - sTime > 12.5
                     rec_i = rec_i+1;
-                    if joystick
-                        [pos, button1] = mat_joy(0);
-                        xAlpha=pos(1);
-                        x=x+xAlpha*velocity_ovr;
-                        yAlpha=pos(2);
-                        y=y+yAlpha*velocity_ovr;
-                    else
-                        [x,y,button1]=GetMouse(theWindow);
-                    end
-                    Screen(theWindow,'DrawLines', save_xy, 5, col);
+                    [~,~,button1]=GetMouse(theWindow);
+                    Screen(theWindow,'DrawLines', xy, 5, col);
                     draw_scale('overall_predict_semicircular');
                     msg = '';
                     DrawFormattedText(theWindow, msg, 'center', 1/2*H-100, white, [], [], [], 2);
@@ -428,15 +409,14 @@ try
                     % Saving data
                     data.dat{runNbr}{trial_Number(j)}.bar_time_fromstart(rec_i,1) = GetSecs-start_while;
                     %data.dat{runNbr}{trial_Number(j)}.bar_xy(rec_i,:) = [x-cir_center(1) cir_center(2)-y]./radius;
-                    data.dat{runNbr}{trial_Number(j)}.bar_clicks(rec_i,:) = button1;
+                    data.dat{runNbr}{trial_Number(j)}.bar_clicks(rec_i,:) = button;
                     data.dat{runNbr}{trial_Number(j)}.bar_r_theta(rec_i,:) = [curr_r/radius curr_theta/180]; %radius and degree?
                 end
-                endTime=GetSecs;
-                data.dat{runNbr}{trial_Number(j)}.contRating_end_timestamp = endTime;
+                data.dat{runNbr}{trial_Number(j)}.contRating_end_timestamp = GetSecs;
                 
                 
                 %5. Delay2
-                fixPoint(endTime, Delay2(j), white, '+')
+                fixPoint(TrSt_t, Delay2(j)+14.5 + ITI(j) + 2 + Delay(j), white, '+')
                 data.dat{runNbr}{trial_Number(j)}.Delay2_end_timestamp_end = GetSecs;
                 
                 
@@ -450,7 +430,7 @@ try
                 data.dat{runNbr}{trial_Number(j)}.overallRating_start_timestamp=sTime; % overall rating time stamp
                 
                 
-                while GetSecs - sTime < 7
+                while GetSecs - TrSt_t < 5 + Delay2(j)+14.5 + ITI(j) + 2 + Delay(j)
                     rec_i= rec_i+1;
                     if joystick
                         [pos, button] = mat_joy(0);
@@ -753,7 +733,7 @@ try
                     
                 end %end of a overall rating
                 data.dat{runNbr}{trial_Number(j)}.overallRating_end_timestamp = GetSecs;
-                        
+                
                 
                 if USE_EYELINK
                     Eyelink('Message','Overall rating ends');
@@ -770,7 +750,7 @@ try
                 data.dat{runNbr}{trial_Number(j)}.end_trial_t = end_trial;
                 
                 data.run_endtime_timestamp{runNbr}=GetSecs;
-            end     
+                
             end
             
             
@@ -810,6 +790,7 @@ try
             disp('Done');
             
             
+    end
     
 catch err
     % ERROR

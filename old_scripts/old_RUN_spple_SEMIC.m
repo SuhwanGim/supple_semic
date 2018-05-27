@@ -11,23 +11,23 @@ type = rnd_semic_type;
 %% EXPERIMENT %%
 %% 1. Calibration
 % 'SEMP000~'
-SID = 'SEMP002' %Participants % pSEM001~
+SID = ¿Ã;∂Û∏’§∑ %Participants % pSEM001~
 calibration(SID, ip, port,'joystick'); %'test'
 %% SETUP: Load calibration data & SkinSite sequences
 reg = load_cali_results(SID); disp(reg.skinSite_rs);
 %% Main STUDY % thermode_test(('biopac1','fmri') ... ... )
-%% 1. RUN1r
-thermode_test(type, SID, 1, ip, port, reg,'joystick');
+%% 1. RUN1
+thermode_test(type, SID, 1, ip, port, reg,'joystick','test');
 %% 2. RUN2
-thermode_test(type, SID, 2, ip, port, reg,'joystick');
+thermode_test(type, SID, 2, ip, port, reg,'joystick','test');
 %% 3. RUN3
-thermode_test(type, SID, 3, ip, port, reg,'joystick');
+thermode_test(type, SID, 3, ip, port, reg,'joystick','test');
 %% 4. RUN4
-thermode_test(type, SID, 4, ip, port, reg,'joystick');
+thermode_test(type, SID, 4, ip, port, reg,'joystick','test');
 %% 5. RUN5
-thermode_test(type, SID, 5, ip, port, reg,'joystick');
+thermode_test(type, SID, 5, ip, port, reg,'joystick','test');
 %% 6. RUN6
-thermode_test(type, SID, 6, ip, port, reg,'joystick');
+thermode_test(type, SID, 6, ip, port, reg,'joystick','test');
 
 
 
@@ -42,4 +42,4 @@ thermode_test(type, SID, 6, ip, port, reg,'joystick');
 
 
 %% SEND DATA
-SEMIC_Senddata(SID,'Calibration')
+SEMIC_Senddata(SID,'mri')
