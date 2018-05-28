@@ -180,6 +180,7 @@ H = window_rect(4); %height of screen
 font = 'NanumBarunGothic';
 
 bgcolor = 80;
+bar_change = 140;
 white = 255;
 red = [255 0 0];
 red_Alpha = [255 164 0 130]; % RGB + A(Level of tranceprency: for social Cue)
@@ -339,6 +340,7 @@ try
                 % lb2 = W/3; rb2 = (W*2)/3; % new bound for or not
                 start_while=GetSecs;
                 data.dat{runNbr}{trial_Number(j)}.contRating_start_timestamp = start_while;
+                x = randperm(1024,1); y=randperm(1025,1);
                 SetMouse(x,y);
                 while GetSecs - start_while < 10
                     rec_i = rec_i+1;
@@ -401,7 +403,7 @@ try
                 data.dat{runNbr}{trial_Number(j)}.bar_duration_heat_trigger = toc;
                 data.dat{runNbr}{trial_Number(j)}.bar_heat_start_timestamp = GetSecs;
                 save_xy = xy;
-                % trigger 
+                % trigger
                 WaitSecs(0.5);
                 while GetSecs - sTime < 12.5
                     rec_i = rec_i+1;
@@ -422,7 +424,8 @@ try
                     Screen('Flip',theWindow);
                     
                     if button1(1)
-                        col = red;
+                        %col = red;
+                        col = bar_change;
                     end
                     
                     % Saving data
@@ -753,7 +756,7 @@ try
                     
                 end %end of a overall rating
                 data.dat{runNbr}{trial_Number(j)}.overallRating_end_timestamp = GetSecs;
-                        
+                
                 
                 if USE_EYELINK
                     Eyelink('Message','Overall rating ends');
@@ -770,46 +773,46 @@ try
                 data.dat{runNbr}{trial_Number(j)}.end_trial_t = end_trial;
                 
                 data.run_endtime_timestamp{runNbr}=GetSecs;
-            end     
             end
-            
-            
-            if USE_BIOPAC %end BIOPAC
-                bio_t = GetSecs;
-                data.dat{runNbr}{trial_Number(j)}.biopac_endtime = bio_t;% biopac end timestamp
-                BIOPAC_trigger(ljHandle, biopac_channel, 'on');
-                waitsec_fromstarttime(bio_t, 0.1);
-                BIOPAC_trigger(ljHandle, biopac_channel, 'off');
-            end
-            
-            save(data.datafile, '-append', 'data');
-            
-            %closing message utill stoke specific keyboard
-            if runNbr==6
-                Screen('Flip',theWindow);
-                WaitSecs(5);
-                display_expmessage('모든 실험이 종료되었습니다\n잠시만 기다려주세요');
-            else
-                Screen('Flip',theWindow);
-                WaitSecs(5);
-                display_expmessage('잠시만 기다려주세요.');
-            end
-            
-            while (1)
-                [~,~,keyCode] = KbCheck;
-                if keyCode(KbName('q'))==1
-                    break
-                elseif keyCode(KbName('space'))== 1
-                    break
-                end
-            end
-            
-            ShowCursor();
-            Screen('Clear');
-            Screen('CloseAll');
-            disp('Done');
-            
-            
+    end
+    
+    
+    if USE_BIOPAC %end BIOPAC
+        bio_t = GetSecs;
+        data.dat{runNbr}{trial_Number(j)}.biopac_endtime = bio_t;% biopac end timestamp
+        BIOPAC_trigger(ljHandle, biopac_channel, 'on');
+        waitsec_fromstarttime(bio_t, 0.1);
+        BIOPAC_trigger(ljHandle, biopac_channel, 'off');
+    end
+    
+    save(data.datafile, '-append', 'data');
+    
+    %closing message utill stoke specific keyboard
+    if runNbr==6
+        Screen('Flip',theWindow);
+        WaitSecs(5);
+        display_expmessage('모든 실험이 종료되었습니다\n잠시만 기다려주세요');
+    else
+        Screen('Flip',theWindow);
+        WaitSecs(5);
+        display_expmessage('잠시만 기다려주세요.');
+    end
+    
+    while (1)
+        [~,~,keyCode] = KbCheck;
+        if keyCode(KbName('q'))==1
+            break
+        elseif keyCode(KbName('space'))== 1
+            break
+        end
+    end
+    
+    ShowCursor();
+    Screen('Clear');
+    Screen('CloseAll');
+    disp('Done');
+    
+    
     
 catch err
     % ERROR
