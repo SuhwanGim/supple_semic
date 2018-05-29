@@ -236,7 +236,12 @@ try
     % Themode_test (with highest degree based on calibration data)
     pathway_test(ip, port, 'MRI', reg);
     % Explain grid-scale every run
-    exp_scale('predict',joystick);
+    if type == 'bar'
+        exp_scale('bar',joystick);
+    else
+        exp_scale('predict',joystick);
+    end
+    
     
     
     % START: RUN
@@ -336,11 +341,10 @@ try
                 % set the mouse or x y position to center of semi-circular
                 % cir_center = [(rb1+lb1)/2, bb]; -->
                 SetMouse(cir_center(1), cir_center(2)); % set mouse at the center
-                x=cir_center(1); y=cir_center(2);
+                x=cir_center(1)+randperm(100,1)-50; y=cir_center(2);
                 % lb2 = W/3; rb2 = (W*2)/3; % new bound for or not
                 start_while=GetSecs;
                 data.dat{runNbr}{trial_Number(j)}.contRating_start_timestamp = start_while;
-                x = randperm(1024,1); y=randperm(1025,1);
                 SetMouse(x,y);
                 while GetSecs - start_while < 10
                     rec_i = rec_i+1;
@@ -348,9 +352,9 @@ try
                     if joystick
                         [pos, button] = mat_joy(0);
                         xAlpha=pos(1);
-                        x=x+xAlpha*velocity_ovr;
+                        x=x+xAlpha*15;
                         yAlpha=pos(2);
-                        y=y+yAlpha*velocity_ovr;
+                        y=y+yAlpha*10;
                     else
                         [x,y,button]=GetMouse(theWindow);
                     end
@@ -383,6 +387,7 @@ try
                     curr_theta = rad2deg(-theta+pi);
                     
                     % Saving data
+                    data.dat{runNbr}{trial_Number(j)}.con_xy_ba{rec_i,:}=xy;
                     data.dat{runNbr}{trial_Number(j)}.con_time_fromstart(rec_i,1) = GetSecs-start_while;
                     data.dat{runNbr}{trial_Number(j)}.con_xy(rec_i,:) = [x-cir_center(1) cir_center(2)-y]./radius;
                     data.dat{runNbr}{trial_Number(j)}.con_clicks(rec_i,:) = button;
@@ -399,6 +404,7 @@ try
                 rec_i = 0;
                 % triggering heat
                 data.dat{runNbr}{trial_Number(j)}.bar_click_Rating_start_timestamp = sTime;
+                tic;
                 data.dat{runNbr}{trial_Number(j)}.bar_heat_start_txt = main(ip,port,2); % start heat signal
                 data.dat{runNbr}{trial_Number(j)}.bar_duration_heat_trigger = toc;
                 data.dat{runNbr}{trial_Number(j)}.bar_heat_start_timestamp = GetSecs;
